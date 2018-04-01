@@ -48,50 +48,24 @@ function renderView(arrOfData) {
 }
 
 import axios from 'axios';
+
 window.addEventListener('load', function (){
   console.log('loaded')
   
-  const dogs = axios('/dogs').then(res => res.data)
-  const cats = axios('/cats').then(res => res.data)
-  const drags = axios('/dragons').then(res => res.data)
-  
-  Promise.all([dogs,cats,drags])
-    .then(function (values){
-      switch (location.hash) {
-        case '#dogs':
-          renderView(values[0]);
-          break;
-        case '#cats':
-          renderView(values[1]);
-          break;
-        case '#dragons':
-          renderView(values[2]);
-          break;
-        default:
-          new Error('there is no such animal');
-          break;
-      }
-    })
-    
-  Promise.all([dogs,cats,drags])
-    .then(function(){
-      document.getElementById('dogs')
-        .addEventListener('click', function (event) {
-          location.hash = '#dogs';
-          renderView(dogs)
-        });
-      document.getElementById('cats')
-        .addEventListener('click', function (event) {
-          location.hash = '#cats';
-          renderView(cats)
-        });
-      document.getElementById('dragons')
-        .addEventListener('click', function (event) {
-          location.hash = '#dragons';
-          renderView(drags)
-        });
-    })
+  if (location.hash) {
+    axios(`/${location.hash.slice(1)}`)
+      .then(res => res.data)
+      .then(renderView)
+  }
+
+  ['dogs','cats','dragons'].forEach(animal => {
+    document.getElementById(animal)
+    .addEventListener('click', function () {
+      location.hash = `#${animal}`;
+      axios(`/${location.hash.slice(1)}`)
+        .then(res => res.data)
+        .then(renderView)
+    });
+  })
 
 })
-
-
